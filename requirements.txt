@@ -1,0 +1,41 @@
+# =============================================================================
+# SemEval 2026 Task 8 — Conversational RAG Pipeline
+# AILS-NTUA System Requirements
+# =============================================================================
+
+# --- LLM / API clients ---
+requests>=2.31.0
+openai>=1.0.0                  # Azure OpenAI-compatible endpoint (DeepSeek, GPT-4o)
+
+# --- Elasticsearch (ELSER v1 retrieval) ---
+elasticsearch>=8.0.0,<9.0.0
+
+# --- Reranking ---
+# Cohere is called via Azure REST API (no SDK needed, uses requests)
+
+# --- Data processing ---
+numpy>=1.24.0
+pandas>=2.0.0
+
+# --- Progress bars ---
+tqdm>=4.65.0
+
+# --- Concurrency ---
+# ThreadPoolExecutor is stdlib (concurrent.futures) — no install needed
+
+# --- Hugging Face (SPLADE) ---
+huggingface-hub>=0.20.0
+transformers>=4.38.0
+
+# --- Jupyter (for running notebooks) ---
+jupyter>=1.0.0
+nbformat>=5.9.0
+ipywidgets>=8.0.0
+
+# --- Evaluation ---
+# The eval script (run_retrieval_eval.py) is provided by the organizers
+# Make sure it is placed at: $BASEPATH/run_retrieval_eval.py
+
+# --- Dev / optional ---
+nbstripout>=0.7.0              # Strip notebook outputs before git commit
+python-dotenv>=1.0.0           # Load .env for API keys
