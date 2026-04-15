@@ -1,0 +1,11 @@
+# End-to-end pipeline config
+
+retrieval_config: configs/retrieval.yaml
+generation_config: configs/generation.yaml
+
+# Override options
+run_answerability: true
+run_generation: true
+
+# Output
+save_intermediate: true
