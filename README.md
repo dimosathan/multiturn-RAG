@@ -108,7 +108,7 @@ python scripts/run_task_b.py \
   --config configs/generation.yaml
 Task C
 python scripts/run_task_c.py
-📊 Dataset
+##📊 Dataset
 
 We use the MTRAG benchmark:
 
@@ -120,19 +120,19 @@ Setup instructions:
 
 👉 see data/README.md
 
-🔬 Key Findings
+##🔬 Key Findings
 Query diversity > retriever diversity
 Nested RRF > flat RRF
 Answerability is the main bottleneck
 Extractiveness shaping improves faithfulness
-📚 Citation
+##📚 Citation
 @inproceedings{athanasiou-etal-2026-ails,
   title={AILS-NTUA at SemEval-2026 Task 8},
   author={Athanasiou, Dimosthenis and others},
   booktitle={SemEval-2026},
   year={2026}
 }
-🙌 Acknowledgements
+##🙌 Acknowledgements
 
 We thank the MTRAG benchmark authors (IBM Research)
 and the SemEval-2026 Task 8 organizers.
@@ -140,23 +140,9 @@ and the SemEval-2026 Task 8 organizers.
 AILS Lab — NTUA
 
 
----
 
-# 🔵 ΒΕΛΤΙΩΜΕΝΟ `data/README.md`
 
-Το δικό σου είναι ήδη **πολύ καλό**, εγώ θα κάνω μικρό cleanup για readability.
 
-👉 βάλε αυτό:
-
-```markdown
-# Data
-
-This directory is intentionally empty.
-
-All data used in this project comes from the official  
-👉 https://github.com/IBM/mt-rag-benchmark
-
----
 
 ## Setup
 
