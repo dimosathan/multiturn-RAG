@@ -108,6 +108,7 @@ python scripts/run_task_b.py \
   --config configs/generation.yaml
 Task C
 python scripts/run_task_c.py
+```
 ##📊 Dataset
 
 We use the MTRAG benchmark:
@@ -140,13 +141,3 @@ and the SemEval-2026 Task 8 organizers.
 AILS Lab — NTUA
 
 
-
-
-
-
-## Setup
-
-### 1. Clone dataset
-
-```bash
-git clone https://github.com/IBM/mt-rag-benchmark
