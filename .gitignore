@@ -1,40 +1,39 @@
-# Credentials
+# Secrets
 .env
-.aws/
-.google/
-.openai/
+*.key
 
 # Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
 *.egg-info/
 .venv/
 venv/
-*.egg
+.pytest_cache/
+.ruff_cache/
 
 # Jupyter
 .ipynb_checkpoints/
 
-# Data (large generated files)
-corpora/
-predictions/
-*.jsonl
-*.tsv
-*.pkl
+# Data and run outputs (large / licensed / regenerable)
+data/corpora/
+data/retrieval/
+data/generation/
+data/test/
+outputs/
+results/figures/
 *.npy
+*.pkl
 *.pt
 
-# Outputs
-results/
-logs/
-*.log
+# Local scratch used while porting the Colab notebooks
+_drive_notebooks/
+_tmp_stripped/
+/3.ipynb
+/4.ipynb
+/DevFinal.ipynb
 
 # IDE / OS
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
 .DS_Store
 Thumbs.db

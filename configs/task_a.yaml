@@ -1,0 +1,42 @@
+# Task A — retrieval (paper §3-4, Table 2; thesis §5.2).
+strategies: [minimal, corpus_specific, cot, hyde, anchor_keyword]
+workers: 5
+
+corpora:                       # passage-level corpora (see data/README.md)
+  clapnq: data/corpora/clapnq.jsonl
+  fiqa:   data/corpora/fiqa.jsonl
+  govt:   data/corpora/govt.jsonl
+  cloud:  data/corpora/cloud.jsonl
+
+retrieval:
+  backend: elser_v1
+  top_k: 100
+  field: text_embedding
+  model_id: .elser_model_1
+  doc_id_field: doc_id
+  index_map:                   # your own Elasticsearch indices
+    clapnq: clapnq_elser_v1
+    fiqa:   fiqa_elser_v1
+    govt:   govt_elser_v1
+    cloud:  cloud_elser_v1
+
+rerank:
+  enabled: true
+  model: Cohere-rerank-v4.0-pro
+  top_k: 60                    # candidates per rewrite sent to the cross-encoder (thesis §5.2.2)
+  doc_max_chars: 2000
+  method: rrf                  # weighted RRF, paper Eq. 1 / thesis Eq. 5.2.1
+  alpha: 0.5
+  k: 60
+  # Alternative used in the development notebooks: method: minmax
+  # (score interpolation (1-alpha)*minmax(ELSER) + alpha*minmax(Cohere)), top_k: 100.
+
+fusion:
+  keep: 100
+  params:                      # nested RRF, Table 2
+    clapnq: {k_final: 20, weights: {minimal: 0.55, corpus_specific: 0.40, weak_consensus: 0.05}}
+    fiqa:   {k_final: 60, weights: {minimal: 0.45, corpus_specific: 0.40, weak_consensus: 0.15}}
+    govt:   {k_final: 40, weights: {minimal: 0.65, corpus_specific: 0.25, weak_consensus: 0.10}}
+    cloud:  {k_final: 20, weights: {minimal: 0.65, corpus_specific: 0.30, weak_consensus: 0.05}}
+
+submission_top_k: 10

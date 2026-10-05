@@ -1,0 +1,17 @@
+# Task B — generation with reference passages (paper §3, App. C).
+workers: 5
+generation:
+  n_passages: 5
+  max_spans: 8
+  span_attempts: 2            # first attempt + one retry with urgency prefix
+  temp_a: 0.0
+  temp_b: 0.1
+  base_target_words: 90       # + question-type offset (Table 32)
+  user_judge_rate: 0.60
+  seed: 42
+  min_words: 50               # micro-adjustment triggers
+  max_words: 150
+  min_words_after_edit: 30
+  max_words_refusal: 25
+  band: {low: 0.28, ideal: 0.38, high: 0.50, r_under: -1.5, r_ideal: 2.5, r_accept: 1.5, r_over: 0.5}
+  weights: {technical: 0.35, user: 5.0, prior_a: 2.0, forbidden_penalty: 2.0}

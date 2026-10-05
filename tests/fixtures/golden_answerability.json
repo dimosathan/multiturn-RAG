@@ -1,0 +1,576 @@
+{
+ "expand": "{\"verdict\":\"ANSWERABLE\",\"confidence\":0.8,\"analysis\":\"ok\",\"history_contains_answer\":false,\"confidence\":0.8,\"extractedSpans\":[{\"passage\":1,\"text\":\"S1\"}]}",
+ "expand_calls": [
+  {
+   "system": "Question expander.",
+   "user": "A user is in a conversation. Rewrite their short/vague message\nas a clear, answerable question using the conversation history.\n\nHistory:\nUser: Tell me about EV batteries\nAssistant: EV batteries last long.\nUser: what about cost?\nAssistant: They cost money.\n\nUser's message: \"and NASA?\"\n\nRules:\n- ONE sentence, max 20 words.\n- Resolve references (\"it\",\"this\",\"they\") using history.\n- Keep GENERAL — do NOT add specifics not in the history.\n- Do NOT introduce new entities absent from history.\n- If already clear, return unchanged.\n\nFull question:",
+   "temperature": 0.0,
+   "max_tokens": 80
+  }
+ ],
+ "hist": [
+  false,
+  "",
+  0.0
+ ],
+ "hist_calls": [
+  {
+   "system": "History checker.",
+   "user": "Does the conversation history already contain sufficient\ninformation to answer this follow-up question?\n\nPrevious Assistant responses:\nAssistant: EV batteries last long.\nAssistant: They cost money.\n\nFollow-up question: \"What about NASA?\"\n\nJSON:\n{\n  \"history_contains_answer\": true/false,\n  \"reason\": \"brief\",\n  \"confidence\": 0.0-1.0\n}",
+   "temperature": 0.0,
+   "max_tokens": 150
+  }
+ ],
+ "spans": [
+  {
+   "text": "S1"
+  }
+ ],
+ "spans_calls": [
+  {
+   "system": "Extractor.",
+   "user": "Extract sentences that answer the question.\n\nHistory: Assistant: EV batteries last long.\nUser: what about cost?\nAssistant: They cost money.\nQuestion: What about NASA?\n\nPassages:\n\n━━ PASSAGE 1 ━━\nDoc one text.\n\n━━ PASSAGE 2 ━━\nDoc two text.\n\nJSON (max 8):\n{\"extractedSpans\": [{\"passage\":1,\"text\":\"sentence\"}]}",
+   "temperature": 0.0,
+   "max_tokens": 800
+  }
+ ],
+ "answer": "{\"verdict\":\"ANSWERABLE\",\"confidence\":0.8,\"analysis\":\"ok\",\"history_contains_answer\":false,\"confidence\":0.8,\"extractedSpans\":[{\"passage\":1,\"text\":\"S1\"}]}",
+ "answer_calls": [
+  {
+   "system": "Answer generator.",
+   "user": "Generate a factual answer.\n\nINFORMATION:\nKEY FACTS:\n• S1\n\nFULL DOCUMENTS:\n\nDoc 1: Doc one text.\n\nDoc 2: Doc two text.\n\nConversation History (valid source):\nUser: Tell me about EV batteries\nAssistant: EV batteries last long.\nUser: what about cost?\nAssistant: They cost money.\n\nQuestion: What about NASA?\n\nInstructions:\n- Use docs AND history. Domain-adjacent facts are valid.\n- Partial info is valid — state caveat but INCLUDE the data.\n- For yes/no: clear answer if supported.\n- Logical inference from facts is valid.\n- Say \"not available\" ONLY if truly off-topic everywhere.\n\nAnswer:",
+   "temperature": 0.0,
+   "max_tokens": 500
+  }
+ ],
+ "j1": [
+  "ANSWERABLE",
+  0.8,
+  "ok"
+ ],
+ "j1_calls": [
+  {
+   "system": "Judge 1.",
+   "user": "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nCALIBRATION EXAMPLES (v2.6):\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nExample 1: ANSWERABLE — Direct from docs\nQuestion: \"How many teams are in the NFL?\"\nDocuments: [\"There are 32 teams in the NFL...\"]\nVerdict: ANSWERABLE ✅\n\nExample 2: ANSWERABLE — History contains the answer\nQuestion: \"What is it?\"\nHistory: [Assistant: \"Groundwater contamination refers to harmful substances...\"]\nDocuments: [Unrelated docs]\nVerdict: ANSWERABLE ✅ — History already answered it.\n\nExample 3: ANSWERABLE — Feature docs imply worth\nQuestion: \"Is it worth having a web chat widget?\"\nDocuments: [How to configure/integrate web chat — features described]\nVerdict: ANSWERABLE ✅\n\nExample 4: ANSWERABLE ⚠️ DOMAIN ADJACENCY\nQuestion: \"What enforcement options for spousal support violations?\"\nHistory: [Child support enforcement: DCSS, police, FPLS, liens...]\nDocuments: [Family law docs]\nVerdict: ANSWERABLE ✅\nReasoning: Child and spousal support enforcement use the same legal\nmechanisms. Domain-adjacent facts from the same legal domain = valid.\nDo NOT say \"this is about child support, not spousal support.\"\n\nExample 5: ANSWERABLE ⚠️ PURPOSE MATCH\nQuestion: \"Can I visit the law library to prepare for my oral argument?\"\nDocuments: [Oral argument preparation, reviewing legal authorities]\nVerdict: ANSWERABLE ✅\nReasoning: Docs address the PURPOSE (legal research for oral prep).\nThe specific method (library visit) is implied. Docs discuss the\ngoal even if not the exact detail mentioned.\n\nExample 6: ANSWERABLE ⚠️ PARTIAL DATA WITH CAVEAT\nQuestion: \"What was India's population in the 1940s?\"\nAnswer: \"Not directly in docs, but historically ~390-400 million.\"\nVerdict: ANSWERABLE ✅ — Real number present = not IDK.\n\nExample 7: ANSWERABLE — Inference from comparison\nQuestion: \"Are pedestrian laws the same as bicycle laws?\"\nHistory: [Bicycle laws explained in detail]\nDocuments: [Pedestrian safety rules]\nVerdict: ANSWERABLE ✅\nReasoning: History gives bicycle laws, docs give pedestrian laws.\nTogether they allow a direct comparison = ANSWERABLE.\n\nExample 8: UNANSWERABLE — New entity, no grounding\nQuestion: \"Isn't this where NASA technology comes in?\"\nHistory: [EV battery — no NASA mention]\nDocuments: [EV battery — no NASA mention]\nVerdict: UNANSWERABLE ❌ — NASA not in any context, pure speculation.\n\nExample 9: UNANSWERABLE — Time-sensitive + outdated\nQuestion: \"Where do the Cardinals play THIS WEEK?\"\nDocuments: [\"Week 7, October 22, 2017...\"]\nVerdict: UNANSWERABLE ❌\n\nExample 10: UNANSWERABLE — Topic mention only\nQuestion: \"Why doesn't the government prevent living in flood zones?\"\nDocuments: [Flood statistics]\nVerdict: UNANSWERABLE ❌\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nKEY PRINCIPLES (v2.6):\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n✅ ANSWERABLE if ANY of:\n   1. Docs directly answer (even partially).\n   2. History contains the answer (even if docs don't).\n   3. Docs describe features of X → \"Is X worth it?\" = ANSWERABLE.\n   4. Domain-adjacent facts (child→spousal, bicycle→pedestrian, etc.)\n   5. Docs address the PURPOSE/GOAL of the question.\n   6. Answer has caveat BUT provides real numbers/facts.\n   7. Logical inference from docs OR history OR combination.\n\n❌ UNANSWERABLE if ALL of:\n   1. Docs AND history completely off-topic.\n   2. No domain adjacency possible.\n   3. OR time-sensitive + only past data available.\n   4. OR question introduces NEW entities not anywhere in context.\n   5. AND answer is purely \"I don't know\" with no real data.\n\n⚠️ NEVER call UNANSWERABLE because:\n   - The question seems \"subjective\" if docs have factual info.\n   - The answer has a caveat but provides real data.\n   - The domain is \"slightly different\" (spousal vs child support, etc.)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n\nEVALUATE:\nHistory: User: Tell me about EV batteries\nAssistant: EV batteries last long.\nUser: what about cost?\nAssistant: They cost money.\n\n⚠️ Original: \"and NASA?\" → Resolved: \"What about NASA?\"\n\nQuestion: What about NASA?\nDocuments:\n\n━━ DOC 1 ━━\nDoc one text.\n\n━━ DOC 2 ━━\nDoc two text.\n\nSTEPS:\n1. HISTORY: History already answers? → ANSWERABLE.\n2. DOMAIN ADJACENCY: Related domain in history/docs → valid inference.\n3. PURPOSE MATCH: Docs address the PURPOSE of the question → ANSWERABLE.\n4. TIME SENSITIVITY: \"this week/today/now\" + past docs → UNANSWERABLE.\n5. FEATURE DOCS: \"Is X worth it?\" + docs describe X's features → ANSWERABLE.\n6. DIRECT/PARTIAL: Docs directly answer (even partially)?\n7. INFERENCE: Logical inference → ANSWERABLE.\n\nJSON:\n{\n  \"history_answers\": true/false,\n  \"domain_adjacent\": true/false,\n  \"purpose_matched\": true/false,\n  \"time_sensitive\": true/false,\n  \"directly_or_infers\": true/false,\n  \"analysis\": \"explanation\",\n  \"verdict\": \"ANSWERABLE\" or \"UNANSWERABLE\",\n  \"confidence\": 0.0-1.0\n}",
+   "temperature": 0.0,
+   "max_tokens": 500
+  }
+ ],
+ "j2": [
+  "ANSWERABLE",
+  0.8,
+  "ok"
+ ],
+ "j2_calls": [
+  {
+   "system": "Judge 2.",
+   "user": "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nCALIBRATION EXAMPLES (v2.6):\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nExample 1: ANSWERABLE — Direct from docs\nQuestion: \"How many teams are in the NFL?\"\nDocuments: [\"There are 32 teams in the NFL...\"]\nVerdict: ANSWERABLE ✅\n\nExample 2: ANSWERABLE — History contains the answer\nQuestion: \"What is it?\"\nHistory: [Assistant: \"Groundwater contamination refers to harmful substances...\"]\nDocuments: [Unrelated docs]\nVerdict: ANSWERABLE ✅ — History already answered it.\n\nExample 3: ANSWERABLE — Feature docs imply worth\nQuestion: \"Is it worth having a web chat widget?\"\nDocuments: [How to configure/integrate web chat — features described]\nVerdict: ANSWERABLE ✅\n\nExample 4: ANSWERABLE ⚠️ DOMAIN ADJACENCY\nQuestion: \"What enforcement options for spousal support violations?\"\nHistory: [Child support enforcement: DCSS, police, FPLS, liens...]\nDocuments: [Family law docs]\nVerdict: ANSWERABLE ✅\nReasoning: Child and spousal support enforcement use the same legal\nmechanisms. Domain-adjacent facts from the same legal domain = valid.\nDo NOT say \"this is about child support, not spousal support.\"\n\nExample 5: ANSWERABLE ⚠️ PURPOSE MATCH\nQuestion: \"Can I visit the law library to prepare for my oral argument?\"\nDocuments: [Oral argument preparation, reviewing legal authorities]\nVerdict: ANSWERABLE ✅\nReasoning: Docs address the PURPOSE (legal research for oral prep).\nThe specific method (library visit) is implied. Docs discuss the\ngoal even if not the exact detail mentioned.\n\nExample 6: ANSWERABLE ⚠️ PARTIAL DATA WITH CAVEAT\nQuestion: \"What was India's population in the 1940s?\"\nAnswer: \"Not directly in docs, but historically ~390-400 million.\"\nVerdict: ANSWERABLE ✅ — Real number present = not IDK.\n\nExample 7: ANSWERABLE — Inference from comparison\nQuestion: \"Are pedestrian laws the same as bicycle laws?\"\nHistory: [Bicycle laws explained in detail]\nDocuments: [Pedestrian safety rules]\nVerdict: ANSWERABLE ✅\nReasoning: History gives bicycle laws, docs give pedestrian laws.\nTogether they allow a direct comparison = ANSWERABLE.\n\nExample 8: UNANSWERABLE — New entity, no grounding\nQuestion: \"Isn't this where NASA technology comes in?\"\nHistory: [EV battery — no NASA mention]\nDocuments: [EV battery — no NASA mention]\nVerdict: UNANSWERABLE ❌ — NASA not in any context, pure speculation.\n\nExample 9: UNANSWERABLE — Time-sensitive + outdated\nQuestion: \"Where do the Cardinals play THIS WEEK?\"\nDocuments: [\"Week 7, October 22, 2017...\"]\nVerdict: UNANSWERABLE ❌\n\nExample 10: UNANSWERABLE — Topic mention only\nQuestion: \"Why doesn't the government prevent living in flood zones?\"\nDocuments: [Flood statistics]\nVerdict: UNANSWERABLE ❌\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nKEY PRINCIPLES (v2.6):\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n✅ ANSWERABLE if ANY of:\n   1. Docs directly answer (even partially).\n   2. History contains the answer (even if docs don't).\n   3. Docs describe features of X → \"Is X worth it?\" = ANSWERABLE.\n   4. Domain-adjacent facts (child→spousal, bicycle→pedestrian, etc.)\n   5. Docs address the PURPOSE/GOAL of the question.\n   6. Answer has caveat BUT provides real numbers/facts.\n   7. Logical inference from docs OR history OR combination.\n\n❌ UNANSWERABLE if ALL of:\n   1. Docs AND history completely off-topic.\n   2. No domain adjacency possible.\n   3. OR time-sensitive + only past data available.\n   4. OR question introduces NEW entities not anywhere in context.\n   5. AND answer is purely \"I don't know\" with no real data.\n\n⚠️ NEVER call UNANSWERABLE because:\n   - The question seems \"subjective\" if docs have factual info.\n   - The answer has a caveat but provides real data.\n   - The domain is \"slightly different\" (spousal vs child support, etc.)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n\nEVALUATE:\nHistory: User: Tell me about EV batteries\nAssistant: EV batteries last long.\nUser: what about cost?\nAssistant: They cost money.\n\n⚠️ Original: \"and NASA?\" → Resolved: \"What about NASA?\"\n\nQuestion: What about NASA?\n\nSpans:\n❌ NO SPANS\n\nSTEPS:\n1. HISTORY: History answers? → ANSWERABLE even without spans.\n2. DOMAIN ADJACENCY: Related domain in history → valid inference.\n3. PURPOSE MATCH: Spans address purpose of the question → ANSWERABLE.\n4. NO SPANS + no history → UNANSWERABLE.\n5. TIME SENSITIVITY: Current question + past spans → UNANSWERABLE.\n6. DIRECT: Spans directly answer (even partially)?\n7. INFERENCE: Valid logical inference → ANSWERABLE.\n\nJSON:\n{\n  \"history_answers\": true/false,\n  \"domain_adjacent_or_purpose\": true/false,\n  \"no_spans\": true/false,\n  \"time_sensitive\": true/false,\n  \"spans_answer_or_infer\": true/false,\n  \"analysis\": \"explanation\",\n  \"verdict\": \"ANSWERABLE\" or \"UNANSWERABLE\",\n  \"confidence\": 0.0-1.0\n}",
+   "temperature": 0.0,
+   "max_tokens": 500
+  }
+ ],
+ "j3": [
+  "ANSWERABLE",
+  0.8,
+  "ok"
+ ],
+ "j3_calls": [
+  {
+   "system": "Judge 3.",
+   "user": "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nCALIBRATION EXAMPLES (v2.6):\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nExample 1: ANSWERABLE — Direct from docs\nQuestion: \"How many teams are in the NFL?\"\nDocuments: [\"There are 32 teams in the NFL...\"]\nVerdict: ANSWERABLE ✅\n\nExample 2: ANSWERABLE — History contains the answer\nQuestion: \"What is it?\"\nHistory: [Assistant: \"Groundwater contamination refers to harmful substances...\"]\nDocuments: [Unrelated docs]\nVerdict: ANSWERABLE ✅ — History already answered it.\n\nExample 3: ANSWERABLE — Feature docs imply worth\nQuestion: \"Is it worth having a web chat widget?\"\nDocuments: [How to configure/integrate web chat — features described]\nVerdict: ANSWERABLE ✅\n\nExample 4: ANSWERABLE ⚠️ DOMAIN ADJACENCY\nQuestion: \"What enforcement options for spousal support violations?\"\nHistory: [Child support enforcement: DCSS, police, FPLS, liens...]\nDocuments: [Family law docs]\nVerdict: ANSWERABLE ✅\nReasoning: Child and spousal support enforcement use the same legal\nmechanisms. Domain-adjacent facts from the same legal domain = valid.\nDo NOT say \"this is about child support, not spousal support.\"\n\nExample 5: ANSWERABLE ⚠️ PURPOSE MATCH\nQuestion: \"Can I visit the law library to prepare for my oral argument?\"\nDocuments: [Oral argument preparation, reviewing legal authorities]\nVerdict: ANSWERABLE ✅\nReasoning: Docs address the PURPOSE (legal research for oral prep).\nThe specific method (library visit) is implied. Docs discuss the\ngoal even if not the exact detail mentioned.\n\nExample 6: ANSWERABLE ⚠️ PARTIAL DATA WITH CAVEAT\nQuestion: \"What was India's population in the 1940s?\"\nAnswer: \"Not directly in docs, but historically ~390-400 million.\"\nVerdict: ANSWERABLE ✅ — Real number present = not IDK.\n\nExample 7: ANSWERABLE — Inference from comparison\nQuestion: \"Are pedestrian laws the same as bicycle laws?\"\nHistory: [Bicycle laws explained in detail]\nDocuments: [Pedestrian safety rules]\nVerdict: ANSWERABLE ✅\nReasoning: History gives bicycle laws, docs give pedestrian laws.\nTogether they allow a direct comparison = ANSWERABLE.\n\nExample 8: UNANSWERABLE — New entity, no grounding\nQuestion: \"Isn't this where NASA technology comes in?\"\nHistory: [EV battery — no NASA mention]\nDocuments: [EV battery — no NASA mention]\nVerdict: UNANSWERABLE ❌ — NASA not in any context, pure speculation.\n\nExample 9: UNANSWERABLE — Time-sensitive + outdated\nQuestion: \"Where do the Cardinals play THIS WEEK?\"\nDocuments: [\"Week 7, October 22, 2017...\"]\nVerdict: UNANSWERABLE ❌\n\nExample 10: UNANSWERABLE — Topic mention only\nQuestion: \"Why doesn't the government prevent living in flood zones?\"\nDocuments: [Flood statistics]\nVerdict: UNANSWERABLE ❌\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nKEY PRINCIPLES (v2.6):\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n✅ ANSWERABLE if ANY of:\n   1. Docs directly answer (even partially).\n   2. History contains the answer (even if docs don't).\n   3. Docs describe features of X → \"Is X worth it?\" = ANSWERABLE.\n   4. Domain-adjacent facts (child→spousal, bicycle→pedestrian, etc.)\n   5. Docs address the PURPOSE/GOAL of the question.\n   6. Answer has caveat BUT provides real numbers/facts.\n   7. Logical inference from docs OR history OR combination.\n\n❌ UNANSWERABLE if ALL of:\n   1. Docs AND history completely off-topic.\n   2. No domain adjacency possible.\n   3. OR time-sensitive + only past data available.\n   4. OR question introduces NEW entities not anywhere in context.\n   5. AND answer is purely \"I don't know\" with no real data.\n\n⚠️ NEVER call UNANSWERABLE because:\n   - The question seems \"subjective\" if docs have factual info.\n   - The answer has a caveat but provides real data.\n   - The domain is \"slightly different\" (spousal vs child support, etc.)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n\nEVALUATE:\nHistory: User: Tell me about EV batteries\nAssistant: EV batteries last long.\nUser: what about cost?\nAssistant: They cost money.\n\n⚠️ Original: \"and NASA?\" → Resolved: \"What about NASA?\"\n\nDoc Judge context: j1 analysis\n\nQuestion: What about NASA?\n\nAnswer:\n\"Answer text\"\n\nSTEPS:\n1. TIME SENSITIVITY: Current question + outdated answer → UNANSWERABLE.\n2. IDK CHECK: Answer PURELY \"I don't know\" with NO actual data → UNANSWERABLE.\n   CRITICAL: Caveat + real data = NOT IDK → ANSWERABLE.\n3. DOMAIN ADJACENCY: Answer uses related domain facts → ANSWERABLE.\n4. HISTORY GROUNDING: Answer grounded in history → ANSWERABLE.\n5. PURPOSE MATCH: Answer addresses the goal/intent → ANSWERABLE.\n6. DIRECT: Partial but relevant → ANSWERABLE. Purely off-topic → UNANSWERABLE.\n\nJSON:\n{\n  \"time_sensitive\": true/false,\n  \"answer_purely_idk\": true/false,\n  \"answer_has_real_data_with_caveat\": true/false,\n  \"domain_adjacent_or_history\": true/false,\n  \"answer_addresses_question\": true/false,\n  \"analysis\": \"explanation\",\n  \"verdict\": \"ANSWERABLE\" or \"UNANSWERABLE\",\n  \"confidence\": 0.0-1.0\n}",
+   "temperature": 0.0,
+   "max_tokens": 500
+  }
+ ],
+ "supreme_grid": [
+  {
+   "in": [
+    "ANSWERABLE",
+    0.5,
+    "ANSWERABLE",
+    0.5,
+    "ANSWERABLE",
+    0.5
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.5,
+    "Unanimous ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.95,
+    "ANSWERABLE",
+    0.95,
+    "ANSWERABLE",
+    0.95
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.9499999999999998,
+    "Unanimous ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.6,
+    "ANSWERABLE",
+    0.91,
+    "ANSWERABLE",
+    0.93
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.8133333333333334,
+    "Unanimous ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.9,
+    "ANSWERABLE",
+    0.89,
+    "ANSWERABLE",
+    0.92
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.9033333333333333,
+    "Unanimous ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.5,
+    "ANSWERABLE",
+    0.5,
+    "UNANSWERABLE",
+    0.5
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.45,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.95,
+    "ANSWERABLE",
+    0.95,
+    "UNANSWERABLE",
+    0.95
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.8549999999999999,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.6,
+    "ANSWERABLE",
+    0.91,
+    "UNANSWERABLE",
+    0.93
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.732,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.9,
+    "ANSWERABLE",
+    0.89,
+    "UNANSWERABLE",
+    0.92
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.8130000000000001,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.5,
+    "UNANSWERABLE",
+    0.5,
+    "ANSWERABLE",
+    0.5
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.45,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.95,
+    "UNANSWERABLE",
+    0.95,
+    "ANSWERABLE",
+    0.95
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.8549999999999999,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.6,
+    "UNANSWERABLE",
+    0.91,
+    "ANSWERABLE",
+    0.93
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.732,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.9,
+    "UNANSWERABLE",
+    0.89,
+    "ANSWERABLE",
+    0.92
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.8130000000000001,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.5,
+    "UNANSWERABLE",
+    0.5,
+    "UNANSWERABLE",
+    0.5
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.425,
+    "Majority UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.95,
+    "UNANSWERABLE",
+    0.95,
+    "UNANSWERABLE",
+    0.95
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.8074999999999999,
+    "Majority UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.6,
+    "UNANSWERABLE",
+    0.91,
+    "UNANSWERABLE",
+    0.93
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.6913333333333334,
+    "Majority UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "ANSWERABLE",
+    0.9,
+    "UNANSWERABLE",
+    0.89,
+    "UNANSWERABLE",
+    0.92
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.7678333333333333,
+    "Majority UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.5,
+    "ANSWERABLE",
+    0.5,
+    "ANSWERABLE",
+    0.5
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.45,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.95,
+    "ANSWERABLE",
+    0.95,
+    "ANSWERABLE",
+    0.95
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.8549999999999999,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.6,
+    "ANSWERABLE",
+    0.91,
+    "ANSWERABLE",
+    0.93
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.732,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.9,
+    "ANSWERABLE",
+    0.89,
+    "ANSWERABLE",
+    0.92
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.8130000000000001,
+    "Majority ANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.5,
+    "ANSWERABLE",
+    0.5,
+    "UNANSWERABLE",
+    0.5
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.425,
+    "Majority UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.95,
+    "ANSWERABLE",
+    0.95,
+    "UNANSWERABLE",
+    0.95
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.8074999999999999,
+    "Majority UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.6,
+    "ANSWERABLE",
+    0.91,
+    "UNANSWERABLE",
+    0.93
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.6913333333333334,
+    "Majority UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.9,
+    "ANSWERABLE",
+    0.89,
+    "UNANSWERABLE",
+    0.92
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.7678333333333333,
+    "Majority UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.5,
+    "UNANSWERABLE",
+    0.5,
+    "ANSWERABLE",
+    0.5
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.425,
+    "Majority UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.95,
+    "UNANSWERABLE",
+    0.95,
+    "ANSWERABLE",
+    0.95
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.741,
+    "J3 override (J1=U, J2=U, J3=A@0.92)"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.6,
+    "UNANSWERABLE",
+    0.91,
+    "ANSWERABLE",
+    0.93
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.7254,
+    "J3 override (J1=U, J2=U, J3=A@0.92)"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.9,
+    "UNANSWERABLE",
+    0.89,
+    "ANSWERABLE",
+    0.92
+   ],
+   "out": [
+    "ANSWERABLE",
+    0.7176,
+    "J3 override (J1=U, J2=U, J3=A@0.92)"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.5,
+    "UNANSWERABLE",
+    0.5,
+    "UNANSWERABLE",
+    0.5
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.5,
+    "Unanimous UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.95,
+    "UNANSWERABLE",
+    0.95,
+    "UNANSWERABLE",
+    0.95
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.9499999999999998,
+    "Unanimous UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.6,
+    "UNANSWERABLE",
+    0.91,
+    "UNANSWERABLE",
+    0.93
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.8133333333333334,
+    "Unanimous UNANSWERABLE"
+   ]
+  },
+  {
+   "in": [
+    "UNANSWERABLE",
+    0.9,
+    "UNANSWERABLE",
+    0.89,
+    "UNANSWERABLE",
+    0.92
+   ],
+   "out": [
+    "UNANSWERABLE",
+    0.9033333333333333,
+    "Unanimous UNANSWERABLE"
+   ]
+  }
+ ],
+ "single_low_overlap": "UNANSWERABLE",
+ "single_calls": [
+  {
+   "system": "You judge answerability. BIAS towards ANSWERABLE.",
+   "user": "ANSWERABILITY JUDGMENT:\n\nANSWERABLE: Docs contain relevant facts (even partial)\nPARTIAL: Docs contain some info but missing key details\nUNANSWERABLE: Temporal mismatch OR completely missing info\n\nBias: When uncertain → ANSWERABLE\n\nDOCUMENTS:\n[PASSAGE 1]\nUnrelated stuff about cooking pasta.\n\n\nCONVERSATION HISTORY:\nUser: what about cost?\nAssistant: They cost money.\n\nQUESTION: Where do the Cardinals play this week?\n\nReturn JSON: {\"answerability\": \"ANSWERABLE\"|\"PARTIAL\"|\"UNANSWERABLE\", \"confidence\": \"HIGH\"|\"MEDIUM\"|\"LOW\"}",
+   "max_tokens": 150
+  }
+ ],
+ "single_high_overlap": "ANSWERABLE"
+}

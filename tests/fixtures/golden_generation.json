@@ -1,0 +1,98 @@
+{
+ "task": {
+  "task_id": "t1",
+  "conversation_id": "c",
+  "Collection": "clapnq",
+  "input": [
+   {
+    "speaker": "user",
+    "text": "Tell me about Paris"
+   },
+   {
+    "speaker": "agent",
+    "text": "Paris is the capital of France."
+   },
+   {
+    "speaker": "user",
+    "text": "How tall is the Eiffel Tower?"
+   }
+  ],
+  "contexts": [
+   {
+    "document_id": "d1",
+    "text": "The Eiffel Tower is 330 metres tall and located in Paris France. More text."
+   },
+   {
+    "document_id": "d2",
+    "text": "It was completed in 1889 for the World Fair."
+   }
+  ]
+ },
+ "calls": [
+  {
+   "role": "deepseek",
+   "system": "Extract relevant sentences.",
+   "user": "Extract sentences answering the question.\n\n\nHistory: User: Tell me about Paris\nAssistant: Paris is the capital of France.\nQuestion: How tall is the Eiffel Tower?\n\n\nPASSAGE 1:\nThe Eiffel Tower is 330 metres tall and located in Paris France. More text.\n\nPASSAGE 2:\nIt was completed in 1889 for the World Fair.\n\nRules:\n1. Copy EXACT sentences\n2. Include: names, numbers, dates, key facts\n3. Max 8 sentences\n4. Prioritize earlier passages\n\nJSON format:\n{\"extractedSpans\": [{\"passageId\": 1, \"sentence\": \"exact text\"}]}",
+   "temperature": 0.0,
+   "max_tokens": 700
+  },
+  {
+   "role": "gpt4o",
+   "system": "Helpful, accurate assistant.",
+   "user": "Generate a natural answer using ONLY the facts below.\n\nFACTS:\n• The Eiffel Tower is 330 metres tall and located in Paris France.\n• It was completed in 1889 for the World Fair.\n\nConversation context: User: Tell me about Paris\nAssistant: Paris is the capital of France.\n\nQuestion: How tall is the Eiffel Tower?\nType: default - Complete answer.\n\nCRITICAL RULES:\n✅ Use ONLY information from FACTS above\n✅ Copy exact phrases for: names, numbers, dates, technical terms\n✅ Aim for ~35% verbatim overlap with facts\n✅ Make it sound natural and complete\n❌ NO outside knowledge\n❌ NO hedging (seems, possibly, maybe)\n❌ NO meta-phrases (based on, according to)\n\nLength: ~90 words\n\nAnswer:",
+   "temperature": 0.0,
+   "max_tokens": 450
+  },
+  {
+   "role": "gpt4o",
+   "system": "Helpful, accurate assistant.",
+   "user": "Generate a natural answer using ONLY the facts below.\n\nFACTS:\n• The Eiffel Tower is 330 metres tall and located in Paris France.\n• It was completed in 1889 for the World Fair.\n\nConversation context: User: Tell me about Paris\nAssistant: Paris is the capital of France.\n\nQuestion: How tall is the Eiffel Tower?\nType: default - Complete answer.\n\nCRITICAL RULES:\n✅ Use ONLY information from FACTS above\n✅ Copy exact phrases for: names, numbers, dates, technical terms\n✅ Aim for ~35% verbatim overlap with facts\n✅ Make it sound natural and complete\n❌ NO outside knowledge\n❌ NO hedging (seems, possibly, maybe)\n❌ NO meta-phrases (based on, according to)\n\nLength: ~90 words\n\nAnswer:",
+   "temperature": 0.1,
+   "max_tokens": 450
+  },
+  {
+   "role": "deepseek",
+   "system": "Judge assistant.",
+   "user": "Compare two answers for quality.\n\nQuestion: How tall is the Eiffel Tower?\nFacts: • The Eiffel Tower is 330 metres tall and located in Paris France.\n• It was completed in 1889 for the World Fair.\n\nA: The Eiffel Tower is 330 metres tall and located in Paris France. It was completed in 1889.\n   (17w, 93% extractiveness)\n\nB: The Eiffel Tower is 330 metres tall and located in Paris France. It was completed in 1889.\n   (17w, 93% extractiveness)\n\nEvaluate: Faithfulness, Completeness, Naturalness\nIdeal extractiveness: 28-45%\n\nJSON: {\"winner\": \"A|B\", \"score_A\": 0-10, \"score_B\": 0-10, \"reason\": \"brief\"}",
+   "temperature": 0.0,
+   "max_tokens": 150
+  },
+  {
+   "role": "mini",
+   "system": "User perspective.",
+   "user": "As a user, which answer do you prefer?\n\nContext: User: Tell me about Paris | Assistant: Paris is the capital of France.\nQuestion: How tall is the Eiffel Tower?\n\nA: The Eiffel Tower is 330 metres tall and located in Paris France. It was completed in 1889.\n\nB: The Eiffel Tower is 330 metres tall and located in Paris France. It was completed in 1889.\n\nJSON: {\"preferred\": \"A|B\", \"confidence\": \"HIGH|MEDIUM|LOW\"}",
+   "temperature": 0.0,
+   "max_tokens": 100
+  },
+  {
+   "role": "mini",
+   "system": "Editor.",
+   "user": "Fix this answer: Too short (17w)\n\nFacts:\n• The Eiffel Tower is 330 metres tall and located in Paris France.\n• It was completed in 1889 for the World Fair.\n\nCurrent: The Eiffel Tower is 330 metres tall and located in Paris France. It was completed in 1889.\n\nFix with minimal changes. Use exact phrases from facts.\n\nFixed:",
+   "temperature": 0.1,
+   "max_tokens": 350
+  }
+ ],
+ "output": "The Eiffel Tower, located in Paris France, is 330 metres tall. It was completed in 1889 for the World Fair, and it remains one of the most visited monuments in the world today, attracting millions of visitors each and every year from many countries.",
+ "task2": {
+  "task_id": "t2",
+  "conversation_id": "c",
+  "Collection": "clapnq",
+  "input": [
+   {
+    "speaker": "user",
+    "text": "Where do the Cardinals play this week?"
+   }
+  ],
+  "contexts": []
+ },
+ "calls2": [
+  {
+   "role": "mini",
+   "system": "Helpful assistant.",
+   "user": "No information available for this question.\n\nQuestion: Where do the Cardinals play this week?\n\nShort response (under 25 words) stating information is not available.\nDo NOT say \"I don't know\" - say \"The information is not available\" or similar.\n\nResponse:",
+   "temperature": 0.0,
+   "max_tokens": 80
+  }
+ ],
+ "output2": "The information is not available."
+}

@@ -1,11 +1,11 @@
-# End-to-end pipeline config
-
-retrieval_config: configs/retrieval.yaml
-generation_config: configs/generation.yaml
-
-# Override options
-run_answerability: true
-run_generation: true
-
-# Output
-save_intermediate: true
+# Task C — end-to-end RAG (paper §3, App. D; thesis §5.4).
+workers: 5
+retrieval_config: configs/task_a.yaml
+n_passages: 3                 # top-3 retrieved passages (paper Table 39, thesis Table 6.17)
+answerability:
+  gate: multi_judge           # document / span / answer judges + arbiter (GPT-4o, tau = 0)
+  refusal_threshold: 0.70     # refuse only if UNANSWERABLE with confidence >= 0.70 (paper App. D.1)
+  multi_judge: {history_threshold: 0.80, j3_override: 0.92, j2_boost: 0.90}
+  # Single-judge baseline (Table 39 / Table 6.17):  gate: single
+  overlap_threshold: 0.40
+generation_config: configs/task_b.yaml

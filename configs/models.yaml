@@ -1,0 +1,30 @@
+# Model deployments and stage -> model routing (paper App. C.2, Table 30).
+# Endpoints / keys are read from the environment variables named below (.env).
+# Prices (USD per 1M tokens) are used only for the cost report.
+models:
+  deepseek-v3.2:
+    endpoint_env: AZURE_DS_ENDPOINT
+    key_env: AZURE_DS_KEY
+    model: DeepSeek-V3.2
+    price_in: 0.20
+    price_out: 0.50
+  gpt-4o:
+    endpoint_env: AZURE_GPT4O_ENDPOINT
+    key_env: AZURE_GPT4O_KEY
+    price_in: 2.50
+    price_out: 10.00
+  gpt-4o-mini:
+    endpoint_env: AZURE_GPT4O_MINI_ENDPOINT
+    key_env: AZURE_GPT4O_MINI_KEY
+    price_in: 0.15
+    price_out: 0.60
+
+roles:
+  rewriter: deepseek-v3.2          # Task A, all five strategies (tau = 0.0)
+  extractor: deepseek-v3.2         # Task B stage 1
+  generator: gpt-4o                # Task B stage 2
+  technical_judge: deepseek-v3.2   # Task B stage 3a
+  user_judge: gpt-4o-mini          # Task B stage 3b
+  light: gpt-4o-mini               # refusals, conversational replies, force-answer, micro-edits
+  answerability_single: deepseek-v3.2
+  answerability_multi: gpt-4o
