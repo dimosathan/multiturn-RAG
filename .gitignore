@@ -19,6 +19,7 @@ data/corpora/
 data/retrieval/
 data/generation/
 data/test/
+data/dev/
 outputs/
 results/figures/
 *.npy

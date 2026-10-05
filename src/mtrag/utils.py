@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+import datetime
+import hashlib
 import json
+import platform
 import re
+import subprocess
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Callable, Iterable, List, Optional, TypeVar
@@ -67,3 +72,50 @@ def deep_get(d: dict, dotted: str, default: Any = None) -> Any:
             return default
         cur = cur[k]
     return cur
+
+
+def file_sha256(path: str | Path, chunk: int = 1 << 20) -> Optional[str]:
+    try:
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            for block in iter(lambda: f.read(chunk), b""):
+                h.update(block)
+        return h.hexdigest()
+    except OSError:
+        return None
+
+
+def git_commit(repo_dir: str | Path) -> Optional[str]:
+    """Current commit hash (with ``-dirty`` suffix if there are local changes), or ``None``."""
+    try:
+        sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_dir, capture_output=True, text=True, timeout=10)
+        if sha.returncode != 0:
+            return None
+        dirty = subprocess.run(["git", "status", "--porcelain"], cwd=repo_dir, capture_output=True, text=True, timeout=10)
+        return sha.stdout.strip() + ("-dirty" if dirty.stdout.strip() else "")
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def write_run_metadata(path: str | Path, *, config: dict, inputs: dict, models: Optional[dict] = None,
+                       args: Optional[dict] = None, repo_dir: str | Path = ".") -> dict:
+    """Write ``run_metadata.json``: resolved config, model routing, input checksums,
+    code version and environment, so every output can be traced to its settings."""
+    from . import __version__
+
+    meta = {
+        "timestamp_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+        "mtrag_version": __version__,
+        "git_commit": git_commit(repo_dir),
+        "python": sys.version.split()[0],
+        "platform": platform.platform(),
+        "command": " ".join(sys.argv),
+        "args": args or {},
+        "inputs": {k: {"path": str(v), "sha256": file_sha256(v)} for k, v in inputs.items()},
+        "models": models or {},
+        "config": config,
+    }
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+    return meta

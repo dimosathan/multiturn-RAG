@@ -85,7 +85,7 @@ def nested_rrf_run(
     Query ids are taken from the ``minimal`` run, as in the original code.
     """
     out: Dict[str, Ranking] = {}
-    for qid in runs["minimal"]:
+    for qid in runs.get("minimal") or next(iter(runs.values())):
         p = params[corpus_of[qid]]
         per_q = {s: r.get(qid, []) for s, r in runs.items()}
         out[qid] = nested_rrf(per_q, p["k_final"], p["weights"], **kwargs)
@@ -94,4 +94,4 @@ def nested_rrf_run(
 
 def flat_rrf_run(runs: Mapping[str, Mapping[str, Ranking]], k: float = 60.0, weights=None) -> Dict[str, Ranking]:
     """Flat (single-level) RRF baseline over all strategies (App. B.9 comparison)."""
-    return {qid: weighted_rrf({s: r.get(qid, []) for s, r in runs.items()}, weights, k) for qid in runs["minimal"]}
+    return {qid: weighted_rrf({s: r.get(qid, []) for s, r in runs.items()}, weights, k) for qid in (runs.get("minimal") or next(iter(runs.values())))}

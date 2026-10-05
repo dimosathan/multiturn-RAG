@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[1]  # repository root
 sys.path.insert(0, str(ROOT / "src"))
 FIX = Path(__file__).parent / "fixtures"
 

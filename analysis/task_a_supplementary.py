@@ -1,5 +1,6 @@
 """Ported from 4.ipynb cell 84. Input paths are taken from environment variables
-(MTRAG_DEV_REFERENCE, MTRAG_TEST_REFERENCE, MTRAG_RESULTS_DIR, MTRAG_FIG_DIR); defaults follow data/README.md.
+(MTRAG_DATA_DIR, MTRAG_CONVERSATIONS, MTRAG_BASELINE_RUN, MTRAG_FINAL_RUN, MTRAG_FIG_DIR);
+defaults follow data/README.md and the output layout of scripts/run_task_a.py.
 """
 """
 Task A Supplementary Figures & Tables
@@ -20,7 +21,6 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 # ── CONFIG ──────────────────────────────────────────────────
-BASE_PATH  = os.environ.get('MTRAG_RESULTS_DIR', 'outputs/dev_runs')
 OUTPUT_DIR = os.environ.get('MTRAG_FIG_DIR', 'results/figures/')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -50,28 +50,24 @@ DOMAIN_COLORS = {
 }
 CORPORA     = ['clapnq', 'fiqa', 'govt', 'cloud']
 DOMAIN_LABEL = {'clapnq':'ClapNQ','fiqa':'FiQA','govt':'Govt','cloud':'Cloud'}
-CONV_PATH   = f'{BASE_PATH}/retrieval/conversations.json'
+DATA_DIR    = os.environ.get('MTRAG_DATA_DIR', 'data')
+CONV_PATH   = os.environ.get('MTRAG_CONVERSATIONS', f'{DATA_DIR}/retrieval/conversations.json')
 
-# ── System paths ──────────────────────────────────────────────
-BASELINE_PATHS = {
-    'clapnq': f'{BASE_PATH}/elser_v1_no_rewrite_predictions/clapnq_elser_v1_no_rewrite_results.jsonl',
-    'fiqa':   f'{BASE_PATH}/elser_v1_no_rewrite_predictions/fiqa_elser_v1_no_rewrite_results.jsonl',
-    'govt':   f'{BASE_PATH}/elser_v1_no_rewrite_predictions/govt_elser_v1_no_rewrite_results.jsonl',
-    'cloud':  f'{BASE_PATH}/elser_v1_no_rewrite_predictions/cloud_elser_v1_no_rewrite_results.jsonl',
-}
-FINAL_PATHS = {
-    'clapnq': f'{BASE_PATH}/rrf_results/elserv1_clapnq_rrf_results.jsonl',
-    'fiqa':   f'{BASE_PATH}/rrf_results/elserv1_fiqa_rrf_results.jsonl',
-    'govt':   f'{BASE_PATH}/rrf_results/elserv1_govt_rrf_results.jsonl',
-    'cloud':  f'{BASE_PATH}/rrf_results/elserv1_cloud_rrf_results.jsonl',
-}
+# ── System runs (outputs of scripts/run_task_a.py on data/dev/taskA_dev.jsonl) ──
+# A single run file covers all four corpora; queries are matched by task_id.
+#   baseline: python scripts/run_task_a.py --tasks data/dev/taskA_dev.jsonl --out outputs/elser_baseline --strategies none --no-rerank
+#   final:    python scripts/run_task_a.py --tasks data/dev/taskA_dev.jsonl --out outputs/task_a_dev
+BASELINE_RUN = os.environ.get('MTRAG_BASELINE_RUN', 'outputs/elser_baseline/fused_top100.jsonl')
+FINAL_RUN    = os.environ.get('MTRAG_FINAL_RUN', 'outputs/task_a_dev/fused_top100.jsonl')
+BASELINE_PATHS = {c: BASELINE_RUN for c in CORPORA}
+FINAL_PATHS    = {c: FINAL_RUN for c in CORPORA}
 
 
 # ══════════════════════════════════════════════════════════════
 # HELPERS
 # ══════════════════════════════════════════════════════════════
 def load_gold_qrels(corpus):
-    path   = f'{BASE_PATH}/retrieval/{corpus}/dev.tsv'
+    path   = f'{DATA_DIR}/retrieval/{corpus}/dev.tsv'
     qrels  = defaultdict(set)
     with open(path, 'r', encoding='utf-8') as f:
         reader = csv.reader(f, delimiter='\t')

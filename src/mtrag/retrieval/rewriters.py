@@ -192,7 +192,18 @@ class AnchorKeywordRewriter(Rewriter):
         return combined or query
 
 
+class NoRewriter(Rewriter):
+    """Baseline: the last user turn is sent to the retriever unchanged (paper Table 4, "No rewriting")."""
+
+    def __init__(self, llm: ChatModel = None):
+        super().__init__(llm, name="none")
+
+    def rewrite(self, query: str, history: Sequence[Turn], corpus: str = "") -> str:
+        return query
+
+
 REWRITER_CLASSES: Dict[str, Callable[[ChatModel], Rewriter]] = {
+    "none": NoRewriter,
     "minimal": MinimalRewriter,
     "corpus_specific": CorpusSpecificRewriter,
     "cot": CoTRewriter,
@@ -205,4 +216,4 @@ def build_rewriter(strategy: str, llm: ChatModel) -> Rewriter:
     try:
         return REWRITER_CLASSES[strategy](llm)
     except KeyError as e:
-        raise ValueError(f"Unknown strategy {strategy!r}; choose from {STRATEGIES}") from e
+        raise ValueError(f"Unknown strategy {strategy!r}; choose from {sorted(REWRITER_CLASSES)}") from e

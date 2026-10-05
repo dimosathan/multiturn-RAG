@@ -16,7 +16,9 @@ are needed to run the system but are not spelled out in the text.
 | Task B pipeline (App. C, Eqs. 4–6, Tables 30, 32) | `mtrag/generation/` | cell 33 |
 | Task C multi-judge gate + arbiter, τ = 0.7, top-3 (§3, App. D) | `mtrag/answerability/multi_judge.py`, `mtrag/rag.py` | `4.ipynb` cells 72–78 |
 | Single-judge baseline (Table 39) | `mtrag/answerability/single.py` | cell 25 |
-| Retrieval metrics, paired bootstrap (10,000 resamples) | `mtrag/evaluation.py` | — |
+| Retrieval metrics, paired bootstrap (10,000 resamples) | `mtrag/evaluation.py`, `scripts/evaluate_retrieval.py` | — |
+| Development-set input, no-rewrite baseline | `scripts/prepare_dev_tasks.py`, `run_task_a.py --strategies none` | `DevFinal` cell 7 (`load_queries`) |
+| ELSER indexing | `scripts/build_elser_index.py` | `DevFinal` cell 37 |
 | Dataset statistics (App. A) | `analysis/eda_*.py`, `analysis/corpus_stats.py` | `4.ipynb` cells 79–83 |
 | Per-turn and standalone analysis (App. B.11–B.12) | `analysis/task_a_supplementary.py` | `4.ipynb` cell 84 |
 
@@ -28,6 +30,22 @@ strategies, and any parsing failure falls back to the original query. The
 XML history keeps the tag order of the reference implementation
 (`format_history_xml(..., legacy_tag_order=True)`), so the rewrites can be
 reproduced exactly.
+
+**Development-set input.** `scripts/prepare_dev_tasks.py` converts the
+retrieval query files (`<corpus>_questions.jsonl`, the input of the
+development notebooks) into task rows. Since these files hold the user turns
+of each conversation, the assistant-turn window of the rewriters only takes
+effect with `--source generation` (conversations from `reference.jsonl`) or
+on the test set, whose `input` contains both speakers.
+
+**Indexing.** `scripts/build_elser_index.py` reproduces the index layout of
+the reference notebooks (`doc_id` keyword, `text`, `text_embedding`
+`sparse_vector` written by an ingest pipeline that runs the ELSER model on the
+passage text).
+
+**Run provenance.** Every script writes the resolved configuration, model
+routing, input checksums and git commit next to its outputs
+(`mtrag.utils.write_run_metadata`).
 
 **Reranking.** The rerank query is the strategy's own rewrite (for HyDE, the
 rewrite plus the hypothetical passage). Passages are sent as

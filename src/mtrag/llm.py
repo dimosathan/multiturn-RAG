@@ -131,6 +131,14 @@ class ModelRegistry:
         self.tracker = tracker or UsageTracker()
         self._clients: Dict[str, AzureChatClient] = {}
 
+    def describe(self) -> Dict[str, dict]:
+        """Role -> deployment description (no secrets) for run metadata."""
+        out = {}
+        for role, name in self.roles.items():
+            s = self.specs.get(name)
+            out[role] = {"name": name, "model": s.model if s else None, "endpoint_env": s.endpoint_env if s else None}
+        return out
+
     def __getitem__(self, role: str) -> ChatModel:
         name = self.roles.get(role, role)
         if name not in self._clients:

@@ -112,8 +112,11 @@ class TaskAPipeline:
         runs = {s: load_run(p) for s, p in paths.items()}
         corpus_of = {t["task_id"]: t["corpus"] for t in tasks}
         coll_of = {t["task_id"]: t["collection"] for t in tasks}
-        params = self.cfg.get("fusion", {}).get("params", NESTED_RRF_PARAMS)
-        fused = nested_rrf_run(runs, corpus_of, params)
+        if len(runs) == 1:  # single strategy (e.g. the no-rewrite baseline): no fusion
+            fused = next(iter(runs.values()))
+        else:
+            params = self.cfg.get("fusion", {}).get("params", NESTED_RRF_PARAMS)
+            fused = nested_rrf_run(runs, corpus_of, params)
         keep = self.cfg.get("fusion", {}).get("keep", 100)
         rows = [{"task_id": q, "Collection": coll_of[q],
                  "contexts": [{"document_id": d, "score": 1.0 / (i + 1)} for i, d in enumerate(docs[:keep])]}

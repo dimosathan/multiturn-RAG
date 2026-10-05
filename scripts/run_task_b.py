@@ -10,11 +10,11 @@ per-turn diagnostics (spans, judge scores, selection, micro-adjustments).
 import argparse
 from pathlib import Path
 
-from _common import cfg, setup
+from _common import ROOT, cfg, setup
 
 from mtrag.generation import GenerationConfig, GenerationPipeline, Models
 from mtrag.io import load_jsonl, save_jsonl
-from mtrag.utils import thread_map
+from mtrag.utils import thread_map, write_run_metadata
 
 
 def build_pipeline(registry, gen_cfg: dict) -> GenerationPipeline:
@@ -40,6 +40,8 @@ def main():
     c = cfg(a.config)
     pipe = build_pipeline(registry, c.get("generation", {}))
     tasks = load_jsonl(a.tasks)[: a.limit] if a.limit else load_jsonl(a.tasks)
+    write_run_metadata(Path(a.out).with_suffix(".meta.json"), config=c, inputs={"tasks": a.tasks},
+                       models=registry.describe(), args=vars(a), repo_dir=ROOT)
     rows = thread_map(pipe.process_task, tasks, c.get("workers", 5), "task B")
     write_outputs(rows, a.out)
     print(registry.tracker.report())

@@ -68,7 +68,8 @@ src/mtrag/
   generation/       prompts, text metrics, selection score (Eq. 4–6), pipeline
   answerability/    multi-judge gate (§3, Table 6) and single-judge baseline (Table 39)
   rag.py            Task C orchestration
-scripts/            command-line entry points (run_task_a/b/c, fuse_runs, evaluate_retrieval)
+scripts/            command-line entry points (run_task_a/b/c, prepare_dev_tasks, build_elser_index,
+                    fuse_runs, evaluate_retrieval)
 analysis/           dataset statistics and paper figures (EDA, per-turn analysis, corpus stats)
 tests/              unit tests + golden-prompt tests against the original notebook code
 notebooks/reference sanitised reference notebooks (provenance only)
@@ -97,6 +98,18 @@ Set up the data and the ELSER indices as described in `data/README.md`.
 ## Usage
 
 ```bash
+# One-off setup: ELSER indices (reads index/field/model names from configs/task_a.yaml)
+python scripts/build_elser_index.py --deploy-model
+
+# Development set: build the 777-query Task A input and merged qrels
+python scripts/prepare_dev_tasks.py            # -> data/dev/taskA_dev.jsonl, data/dev/qrels_dev.tsv
+python scripts/run_task_a.py --tasks data/dev/taskA_dev.jsonl --out outputs/task_a_dev
+python scripts/run_task_a.py --tasks data/dev/taskA_dev.jsonl --out outputs/elser_baseline \
+    --strategies none --no-rerank              # no-rewrite ELSER baseline
+python scripts/evaluate_retrieval.py --qrels data/dev/qrels_dev.tsv \
+    --run base=outputs/elser_baseline/fused_top100.jsonl --run ours=outputs/task_a_dev/fused_top100.jsonl \
+    --compare base ours --metric recall@5
+
 # Task A — rewriting, retrieval, reranking, nested RRF (each stage is cached and resumable)
 python scripts/run_task_a.py --tasks data/test/rag_taskAC.jsonl --out outputs/task_a_test
 #   -> outputs/task_a_test/submission_top10.jsonl
@@ -112,11 +125,17 @@ python scripts/run_task_c.py --tasks data/test/rag_taskAC.jsonl \
 # Offline ablations on cached runs (no API calls)
 python scripts/fuse_runs.py --run minimal=... --run corpus_specific=... --run cot=... \
     --run hyde=... --run anchor_keyword=... --out fused.jsonl [--flat | --uniform]
-python scripts/evaluate_retrieval.py --qrels data/retrieval/*/dev.tsv \
-    --run base=baseline.jsonl --run ours=fused.jsonl --compare base ours --metric recall@5
+python scripts/evaluate_retrieval.py --qrels data/dev/qrels_dev.tsv --run ours=fused.jsonl
+
+# Per-turn and standalone/non-standalone analysis (App. B.11-B.12) on the two dev runs above
+python analysis/task_a_supplementary.py
 ```
 
-Every generation script also writes `<out>.trace.jsonl` with per-turn
+Every run records its provenance: `run_metadata.json` (Task A) or
+`<out>.meta.json` (Tasks B/C) with the resolved config, model routing, input
+checksums, code version (git commit) and command line. Task A refuses to reuse
+an output directory created with a different configuration (`--force`
+overrides). Generation scripts also write `<out>.trace.jsonl` with per-turn
 diagnostics (extracted spans, judge scores, selection scores, micro-adjustment
 reason), and every script prints a token/cost report. Use `--limit N` for a
 smoke test. Official scores must be computed with the organisers' evaluation

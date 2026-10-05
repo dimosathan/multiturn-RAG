@@ -145,3 +145,58 @@ def attach_passage_text(run_rows: List[dict], task_rows: List[dict], corpora: Di
                 row[key] = t[key]
         out.append(row)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Development-set retrieval tasks
+# ---------------------------------------------------------------------------
+_TURN_PREFIX = {"|user|": "user", "|assistant|": "agent", "|agent|": "agent"}
+
+
+def parse_turn_text(text: str) -> List[dict]:
+    """Parse the ``|user|: ... / |assistant|: ...`` format of ``*_questions.jsonl``.
+
+    Returns MTRAG-style turns ``[{"speaker": "user"|"agent", "text": ...}]``.
+    Lines without a recognised prefix are appended to the previous turn.
+    """
+    turns: List[dict] = []
+    for line in (text or "").splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        head, sep, rest = stripped.partition(":")
+        speaker = _TURN_PREFIX.get(head.strip().lower()) if sep else None
+        if speaker:
+            turns.append({"speaker": speaker, "text": rest.strip()})
+        elif turns:
+            turns[-1]["text"] += "\n" + stripped
+        else:
+            turns.append({"speaker": "user", "text": stripped})
+    return turns
+
+
+def dev_tasks_from_questions(path: PathLike, corpus: str) -> List[dict]:
+    """``data/retrieval/<corpus>/<corpus>_questions.jsonl`` -> task rows with ``input``.
+
+    In the MTRAG release these files contain the user turns of the conversation
+    (``_id = <conversation_id><::><turn>``); assistant turns are kept if present.
+    """
+    rows = []
+    for r in iter_jsonl(path):
+        rows.append({"task_id": str(r["_id"]), "Collection": COLLECTION_IDS[corpus],
+                     "input": parse_turn_text(r.get("text", ""))})
+    return rows
+
+
+def dev_tasks_from_generation(path: PathLike, keep_ids: Iterable[str] | None = None) -> List[dict]:
+    """Task rows from a generation file (``reference.jsonl`` / ``RAG.jsonl``), whose
+    ``input`` contains both user and agent turns.  ``keep_ids`` restricts the
+    rows to the retrieval queries (e.g. the qrels ids)."""
+    keep = set(keep_ids) if keep_ids is not None else None
+    rows = []
+    for r in iter_jsonl(path):
+        tid = str(r["task_id"])
+        if keep is not None and tid not in keep:
+            continue
+        rows.append({"task_id": tid, "Collection": r.get("Collection") or r.get("collection"), "input": r.get("input", [])})
+    return rows

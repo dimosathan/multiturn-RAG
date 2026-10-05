@@ -55,11 +55,31 @@ python analysis/corpus_stats.py data/corpora/{clapnq,fiqa,govt,cloud}.jsonl
 
 ## Indexing for ELSER v1
 
-Task A queries Elasticsearch indices (one per corpus, names in
-`configs/task_a.yaml`) whose documents carry the passage id in `doc_id` and a
-`text_expansion` field `text_embedding` produced by an ingest pipeline with the
-`.elser_model_1` model. See the Elastic documentation on
+Task A queries one Elasticsearch index per corpus (names in
+`configs/task_a.yaml`). Each document holds the passage id in `doc_id`, the
+passage text in `text` and the ELSER expansion in the `sparse_vector` field
+`text_embedding`, filled by an ingest pipeline with the `.elser_model_1`
+model. Build them with
+
+```bash
+python scripts/build_elser_index.py --deploy-model        # all corpora; re-run to resume
+```
+
+Requires an Elasticsearch 8.11+ cluster with an ML node (`--field-type
+rank_features` for 8.8-8.10). See the Elastic documentation on
 [ELSER](https://www.elastic.co/guide/en/machine-learning/current/ml-nlp-elser.html).
+
+## Development-set Task A input
+
+`run_task_a.py` expects the conversation of every query (`input`).
+`scripts/prepare_dev_tasks.py` builds it from the retrieval query files
+(`<corpus>_questions.jsonl`, default) or from `generation/reference.jsonl`
+(`--source generation`) and keeps only the queries that appear in the qrels.
+Query ids (`<conversation_id><::><turn>`) are shared by the qrels, the
+retrieval query files and the generation files. In the release used here the
+`*_questions.jsonl` files contain the user turns of each conversation; the
+generation files also contain the agent turns. The script reports how many
+histories contain agent turns.
 
 ## Evaluation scripts
 

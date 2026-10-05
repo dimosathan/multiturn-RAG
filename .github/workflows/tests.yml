@@ -11,6 +11,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev,retrieval]"
       - run: ruff check src scripts tests --select E,F,W --ignore E501,E402,E731,E741,W291,W293
       - run: pytest -q

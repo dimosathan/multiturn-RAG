@@ -1,5 +1,5 @@
 """Ported from 4.ipynb cell 81. Input paths are taken from environment variables
-(MTRAG_DEV_REFERENCE, MTRAG_TEST_REFERENCE, MTRAG_RESULTS_DIR, MTRAG_FIG_DIR); defaults follow data/README.md.
+(MTRAG_DEV_REFERENCE, MTRAG_TEST_REFERENCE, MTRAG_FIG_DIR); defaults follow data/README.md.
 """
 """
 Figure 3: Non-standalone phenomena breakdown

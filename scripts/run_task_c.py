@@ -10,13 +10,15 @@ Step 1 (retrieval) is Task A; pass its fused run with ``--run``:
 
 import argparse
 
-from _common import cfg, setup
+from pathlib import Path
+
+from _common import ROOT, cfg, setup
 from run_task_b import build_pipeline, write_outputs
 
 from mtrag.answerability import MultiJudgeGate, SingleClassifierGate
 from mtrag.io import attach_passage_text, load_corpus, load_jsonl
 from mtrag.rag import RAGPipeline
-from mtrag.utils import thread_map
+from mtrag.utils import thread_map, write_run_metadata
 
 
 def main():
@@ -45,6 +47,9 @@ def main():
         gate = MultiJudgeGate(registry["answerability_multi"], n_passages=c.get("n_passages", 3), **ans.get("multi_judge", {}))
 
     gen = build_pipeline(registry, cfg(c["generation_config"]).get("generation", {}))
+    write_run_metadata(Path(a.out).with_suffix(".meta.json"),
+                       config={"task_c": c, "task_a": ca, "generation": cfg(c["generation_config"]), "gate": gate_name},
+                       inputs={"tasks": a.tasks, "run": a.run}, models=registry.describe(), args=vars(a), repo_dir=ROOT)
     pipe = RAGPipeline(gen, gate, n_passages=c.get("n_passages", 3), refusal_threshold=ans.get("refusal_threshold", 0.70))
     out = thread_map(pipe.process_task, rows, c.get("workers", 5), f"task C [{gate_name}]")
     write_outputs(out, a.out)
